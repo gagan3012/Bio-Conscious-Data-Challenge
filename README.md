@@ -8,7 +8,9 @@ The data folder contains the data provide to me
 The src folder contains the code for my machine learning model with the latest version 
 
 To test out the model fork this repo and then 
-cd src 
-python newpred.py 
+> cd src 
+
+
+> python newpred.py 
 
 ![part3](https://user-images.githubusercontent.com/49101362/77247279-7e95fc00-6c55-11ea-9598-fb3a1ed24e9b.png)
