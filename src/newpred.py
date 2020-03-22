@@ -8,14 +8,15 @@ from keras import optimizers
 import pandas as pd
 from numpy.random import seed
 
+#imporing all the data in to the files
 bg = pd.read_csv("https://raw.githubusercontent.com/gagan3012/Bio-Conscious-Data-Challenge/master/data/blood-glucose-data.csv")
 da = pd.read_csv("https://raw.githubusercontent.com/gagan3012/Bio-Conscious-Data-Challenge/master/data/distance-activity-data.csv")
 hr = pd.read_csv("https://raw.githubusercontent.com/gagan3012/Bio-Conscious-Data-Challenge/master/data/heart-rate-data.csv")
-
+# creating the timestamp
 bg["point_timestamp"] = pd.to_datetime(bg.point_timestamp)
 da["point_timestamp"] = pd.to_datetime(da.point_timestamp)
 hr["point_timestamp"] = pd.to_datetime(hr.point_timestamp)
-
+#bloog glucose file modification
 bg2 = bg.copy()
 bg2.point_timestamp = pd.to_datetime(bg2['point_timestamp'].dt.strftime('%Y-%m-%d %H:%M:%S').str[:17]+"00")
 point_time = pd.date_range(start = bg2.point_timestamp.min(), end = bg2.point_timestamp.max(), freq = "1min")
@@ -33,7 +34,7 @@ bg2["point_value.mg.dL"] = round(bg2["point_value.mg.dL"])
 bg2 = bg2.groupby(["point_timestamp"]).mean()
 bg2["point_timestamp"] = bg2.index
 bg2.index = range(len(bg2))
-
+#hr file modification
 hr2 = hr.copy()
 hr2.point_timestamp = pd.to_datetime(hr2['point_timestamp'].dt.strftime('%Y-%m-%d %H:%M:%S').str[:17]+"00")
 point_time_hr = pd.date_range(start = hr2.point_timestamp.min(), end = hr2.point_timestamp.max(), freq = "1min")
@@ -53,7 +54,7 @@ hr2.index = range(len(hr2))
 
 bg2 = bg2.merge(hr2, how = "left", left_on = "point_timestamp", right_on = "point_timestamp")
 bg2.dropna(axis = 0, inplace = True)
-
+# activity file modiifation
 da2 = da.copy()
 da_iphone = da2[da2.device == "iPhone"]
 da_fitbit = da2[da2.device == "FitbitWatch"]
@@ -112,7 +113,7 @@ bg2["maverage"] = mavg
 bg2.loc[0,"maverage"] = bg2.loc[1,"maverage"]
 bg2["maverage"] = round(bg2["maverage"])
 
-
+#clarke_error_zone_detailed and parkes_error_zone_detailed functions
 def clarke_error_zone_detailed(act, pred):
     """
     This function outputs the Clarke Error Grid region (encoded as integer)
@@ -256,7 +257,7 @@ def zone_accuracy(act_arr, pred_arr, mode='clarke', detailed=False, diabetes_typ
         acc = acc[:5]
 
     return acc / sum(acc)
-
+#spliting data to train test and Validate
 bg2 = bg2.rename(columns = {"point_timestamp_x" : "point_timestamp"})
 bg2_train = bg2.loc[(bg2["point_timestamp"] <= "2017-05-30 23:59:00")]
 bg2_Test = bg2.loc[(bg2["point_timestamp"] > "2017-06-01 23:59:00") & (bg2["point_timestamp"] <= "2017-07-07 23:59:00")]
@@ -316,7 +317,7 @@ scaled_test1 = scaled_test.copy()
 scaled_test1["day_night"] = scaled_test1["day_night"].astype("int")
 list_pred = []
 seed(500)
-
+#model begins here 
 model = Sequential()
 model.add(Dense(1024, input_dim=6, activation='linear'))
 model.add(Dense(512, activation='linear'))
