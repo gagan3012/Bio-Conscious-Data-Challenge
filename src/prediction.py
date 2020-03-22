@@ -113,9 +113,9 @@ bg2.loc[0,"maverage"] = bg2.loc[1,"maverage"]
 bg2["maverage"] = round(bg2["maverage"])
 
 bg2 = bg2.rename(columns = {"point_timestamp_x" : "point_timestamp"})
-bg2_train = bg2.loc[(bg2["point_timestamp"] <= "2017-06-05 23:59:00")]
-bg2_Test = bg2.loc[(bg2["point_timestamp"] > "2017-06-05 23:59:00") & (bg2["point_timestamp"] <= "2017-06-12 23:59:00")]
-bg2_actTest = bg[(bg["point_timestamp"] > "2017-06-05 23:59:00") & (bg["point_timestamp"] <= "2017-06-12 23:59:00")]
+bg2_train = bg2.loc[(bg2["point_timestamp"] <= "2017-05-29 23:59:00")]
+bg2_Test = bg2.loc[(bg2["point_timestamp"] > "2017-06-01 23:59:00") & (bg2["point_timestamp"] <= "2017-07-07 23:59:00")]
+bg2_actTest = bg[(bg["point_timestamp"] > "2017-06-01 23:59:00") & (bg["point_timestamp"] <= "2017-06-08 23:59:00")]
 bg2_actTest["point_timestamp"] = pd.to_datetime(bg2_actTest['point_timestamp'].dt.strftime('%Y-%m-%d %H:%M:%S').str[:17]+"00")
 
 bg2_actTest = bg2_actTest.groupby("point_timestamp").mean()
@@ -145,10 +145,11 @@ bg2_Test["day_night"] = np.where((bg2_Test['point_timestamp'].dt.strftime('%Y-%m
                                   .str[11:13].astype("int") >= 7)  & 
                                  (bg2_Test['point_timestamp'].dt.strftime('%Y-%m-%d %H:%M:%S')
                                   .str[11:13].astype("int") < 19), 1,0)
-bg2_actTest["point_timestamp"] = np.where((bg2_actTest['point_timestamp'].dt.strftime('%Y-%m-%d %H:%M:%S').str[15:16].astype("int") == 2)
+bg2_actTest["point_timestamp"] = np.where((bg2_actTest['point_timestamp'].dt.strftime('%Y-%m-%d %H:%M:%S').
+                                           str[15:16].astype("int") == 2)
             | (bg2_actTest['point_timestamp'].dt.strftime('%Y-%m-%d %H:%M:%S').str[15:16].astype("int") == 7),
-                                          pd.to_datetime(bg2_actTest['point_timestamp'] - pd.Timedelta(minutes=1)),
-                                                         np.where((bg2_actTest['point_timestamp'].dt.strftime('%Y-%m-%d %H:%M:%S').str[15:16].astype("int") == 0)
+            pd.to_datetime(bg2_actTest['point_timestamp'] - pd.Timedelta(minutes=1)),
+                                              np.where((bg2_actTest['point_timestamp'].dt.strftime('%Y-%m-%d %H:%M:%S').str[15:16].astype("int") == 0)
             | (bg2_actTest['point_timestamp'].dt.strftime('%Y-%m-%d %H:%M:%S').str[15:16].astype("int") == 5), 
             pd.to_datetime(bg2_actTest['point_timestamp'] + pd.Timedelta(minutes=1)),bg2_actTest["point_timestamp"] + pd.Timedelta(minutes=0)))
 
@@ -169,18 +170,17 @@ scaled_test = scaled[(len(bg2_train)):len(scaled)]
 scaled_test1 = scaled_test.copy()
 scaled_test1["day_night"] = scaled_test1["day_night"].astype("int")
 list_pred = []
-seed(451)
+seed(500)
 
 model = Sequential()
-model.add(Dense(3, input_dim=6, activation='linear'))
-model.add(Dense(10, activation='linear'))
-model.add(Dense(12, activation='linear'))
-model.add(Dense(10, activation='linear'))
+model.add(Dense(1024, input_dim=6, activation='linear'))
+model.add(Dense(512, activation='linear'))
+model.add(Dense(64, activation='linear'))
 model.add(Dense(1, activation='linear'))
 sgd = optimizers.SGD(lr=0.1)
-model.compile(loss='mean_squared_error', optimizer=sgd, metrics=['accuracy'],)
+model.compile(loss='mean_squared_error', optimizer=sgd, metrics=['accuracy', 'mse'] )
 
-seed(451)
+seed(300)
 model.fit(scaled_train.loc[:, ['point_value.mg.dL', 'point_value', 'point_value.kilometers',
               'maverage', 'speed', 'day_night']], scaled_train.loc[:,"Y"], epochs=1000, batch_size=1000)
 
