@@ -1,4 +1,8 @@
 # Bio Conscious Data Challenge
+[![HitCount](http://hits.dwyl.com/gagan3012/https://githubcom/gagan3012/Bio-Conscious-Data-Challenge.svg)](http://hits.dwyl.com/gagan3012/https://githubcom/gagan3012/Bio-Conscious-Data-Challenge)
+
+
+
 I have used machine learning to predict the blood sugar levels and then testing my models accuracy with RMSE, MARD, and A + B region accuracy on the Parkes Error Grid, which is an iteration of the Clarke Error Grid.   
 
 The results are attached as png fles in the repo 
